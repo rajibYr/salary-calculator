@@ -1,0 +1,199 @@
+/* General Styles */
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  color: #333;
+}
+
+.app {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+/* Input Container */
+.input-container {
+  margin-bottom: 2rem;
+}
+
+label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #555;
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Edit Button */
+.edit-button {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: #3498db;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.edit-button:hover {
+  background: #2980b9;
+}
+
+/* Edit Percentages Section */
+.edit-percentages {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+  display: none; /* Hidden by default */
+}
+
+.percentage-input {
+  margin-bottom: 1rem;
+}
+
+.percentage-input label {
+  font-size: 1rem;
+  color: #555;
+}
+
+.percentage-input input {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.percentage-input input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Toggle Buttons */
+.toggle-buttons {
+  margin-top: 2rem;
+}
+
+.toggle-button {
+  padding: 0.6rem 1rem;
+  margin: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.toggle-button.active {
+  background: #3498db;
+  color: white;
+}
+
+.toggle-button.inactive {
+  background: #e74c3c;
+  color: white;
+}
+
+.toggle-button:hover {
+  transform: scale(1.05);
+}
+
+/* Results Section */
+.results {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+  display: none; /* Hidden by default */
+}
+
+table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+td {
+  padding: 0.8rem;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+td:first-child {
+  font-weight: bold;
+  width: 40%;
+  color: #2c3e50;
+}
+
+/* Net Salary Section */
+.net-salary {
+  margin-top: 2rem;
+  text-align: center;
+  padding: 1.5rem;
+  background: #3498db;
+  border-radius: 10px;
+  color: white;
+}
+
+.net-salary h2 {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.net-salary p {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Footer */
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+  padding: 1rem;
+  font-size: 1rem;
+  color: #555;
+  border-top: 1px solid #ddd;
+}
+
+.footer strong {
+  color: #3498db;
+}

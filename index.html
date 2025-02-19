@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salary Calculator</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div class="app">
+      <h1>💰 Salary Component Calculator</h1>
+      <div class="input-container">
+        <label for="salary">Basic Salary (₹):</label>
+        <input
+          type="number"
+          id="salary"
+          placeholder="Enter your basic salary"
+        />
+      </div>
+
+      <button class="edit-button" id="edit-button">Edit Percentages</button>
+
+      <div class="edit-percentages" id="edit-percentages">
+        <h2>Edit Percentages:</h2>
+        <div id="percentage-inputs"></div>
+      </div>
+
+      <div class="toggle-buttons">
+        <h2>Toggle Components:</h2>
+        <div id="toggle-buttons-container"></div>
+      </div>
+
+      <div class="results" id="results">
+        <h2>📊 Salary Breakdown:</h2>
+        <table>
+          <tbody id="salary-breakdown"></tbody>
+        </table>
+
+        <div class="net-salary">
+          <h2>💵 Net Salary:</h2>
+          <p id="net-salary">₹0.00</p>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>Made with ❤️ by <strong>Malay</strong></p>
+      </footer>
+    </div>
+
+    <script src="mina.js"></script>
+  </body>
+</html>
