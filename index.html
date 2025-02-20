@@ -3,233 +3,364 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Salary Calculator</title>
+    <title>Salary Calculator Pro</title>
+    <link rel="icon" type="icon" href="icon.jpg" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body
-    class="bg-gradient-to-r from-blue-50 to-purple-50 flex items-center justify-center min-h-screen"
+    class="bg-gradient-to-r from-blue-50 to-purple-50 min-h-screen flex items-center justify-center"
   >
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-2xl">
-      <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">
-        💰 Salary Component Calculator
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-2xl mx-4">
+      <h1 class="text-3xl font-bold text-center text-blue-600 mb-8">
+        💰 Salary Calculator
       </h1>
 
-      <!-- Gross Salary Input -->
+      <!-- Salary Input -->
       <div class="mb-6">
         <label class="block text-gray-700 font-semibold mb-2"
-          >Gross Salary (₹):</label
+          >Gross Salary:</label
         >
-        <input
-          type="number"
-          id="salary"
-          placeholder="Enter your gross salary"
-          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div class="relative">
+          <span
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xl"
+            >₹</span
+          >
+          <input
+            type="text"
+            id="salary"
+            placeholder="E.g., 50,000"
+            class="w-full p-3 pl-10 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-xl"
+            oninput="formatSalaryInput(this)"
+          />
+        </div>
+        <p id="salary-in-words" class="text-sm text-gray-500 mt-2"></p>
       </div>
 
-      <!-- Edit Percentages Button -->
-      <button
-        id="edit-button"
-        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all mb-6"
-      >
-        Edit Percentages
-      </button>
+      <!-- Controls -->
+      <div class="flex gap-4 mb-8">
+        <button
+          onclick="showEditModal()"
+          class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+        >
+          Edit Settings ⚙️
+        </button>
+        <button
+          onclick="resetToDefault()"
+          class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-all"
+        >
+          Reset to Default
+        </button>
+      </div>
 
       <!-- Toggle Buttons -->
-      <div class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-700 mb-4">
-          Toggle Components:
-        </h2>
-        <div
-          id="toggle-buttons-container"
-          class="grid grid-cols-2 md:grid-cols-3 gap-3"
-        ></div>
-      </div>
+      <div
+        class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8"
+        id="toggle-container"
+      ></div>
 
-      <!-- Results Section -->
-      <div id="results" class="hidden">
-        <h2 class="text-xl font-semibold text-gray-700 mb-4">
-          📊 Salary Breakdown:
-        </h2>
-        <table class="w-full mb-6">
-          <tbody id="salary-breakdown" class="divide-y divide-gray-200"></tbody>
-        </table>
+      <!-- Results -->
+      <div class="space-y-4" id="results">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h2 class="text-xl font-semibold mb-4 text-blue-600">💰 Earnings</h2>
+          <div id="earnings" class="space-y-2"></div>
+        </div>
 
-        <!-- Net Salary -->
-        <div class="bg-blue-600 p-6 rounded-lg text-white text-center">
-          <h2 class="text-xl font-semibold mb-2">💵 Net Salary:</h2>
-          <p id="net-salary" class="text-3xl font-bold">₹0.00</p>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h2 class="text-xl font-semibold mb-4 text-red-600">💸 Deductions</h2>
+          <div id="deductions" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-blue-600 text-white p-6 rounded-lg text-center">
+          <p class="text-sm opacity-80">Net Salary</p>
+          <p id="net-salary" class="text-4xl font-bold mt-2">₹0</p>
         </div>
       </div>
 
-      <!-- Footer -->
       <footer class="mt-8 text-center text-gray-600">
         <p>Made with ❤️ by <strong class="text-blue-600">Malay</strong></p>
       </footer>
     </div>
 
     <script>
-      // Default percentages and toggles
-      const percentages = {
-        basic: 50,
-        hra: 20,
-        ta: 5,
-        da: 10,
-        otherAllowances: 15,
-        epf: 12,
-        esi: 0.75,
-        tds: 5,
-        professionalTax: 200,
+      // Default settings
+      let settings = {
+        percentages: {
+          basic: 40,
+          hra: 20,
+          ta: 10,
+          da: 15,
+          pf: 12,
+          esi: 0.75,
+          tds: 5,
+          professionalTax: 200,
+        },
+        enabled: {
+          basic: true,
+          hra: true,
+          ta: true,
+          da: true,
+          pf: true,
+          esi: true,
+          tds: true,
+          professionalTax: false,
+        },
       };
 
-      const enabledComponents = {
-        basic: true,
-        hra: true,
-        ta: true,
-        da: true,
-        otherAllowances: true,
-        epf: true,
-        esi: true,
-        tds: true,
-        professionalTax: true,
-      };
+      // Custom Indian Number to Words Converter
+      function numberToWordsIndian(num) {
+        const units = [
+          "",
+          "One",
+          "Two",
+          "Three",
+          "Four",
+          "Five",
+          "Six",
+          "Seven",
+          "Eight",
+          "Nine",
+        ];
+        const teens = [
+          "Ten",
+          "Eleven",
+          "Twelve",
+          "Thirteen",
+          "Fourteen",
+          "Fifteen",
+          "Sixteen",
+          "Seventeen",
+          "Eighteen",
+          "Nineteen",
+        ];
+        const tens = [
+          "",
+          "Ten",
+          "Twenty",
+          "Thirty",
+          "Forty",
+          "Fifty",
+          "Sixty",
+          "Seventy",
+          "Eighty",
+          "Ninety",
+        ];
 
-      // Render toggle buttons
-      function renderToggleButtons() {
-        const toggleButtonsContainer = document.getElementById(
-          "toggle-buttons-container"
-        );
-        toggleButtonsContainer.innerHTML = Object.entries(enabledComponents)
-          .map(
-            ([key, value]) => `
-          <button
-            class="p-3 rounded-lg font-semibold transition-all ${
-              value
-                ? "bg-green-500 hover:bg-green-600"
-                : "bg-red-500 hover:bg-red-600"
-            } text-white"
-            onclick="toggleComponent('${key}')"
-          >
-            ${key.toUpperCase()} ${value ? "✅" : "❌"}
-          </button>
-        `
-          )
-          .join("");
+        function convert(n) {
+          if (n === 0) return "";
+          if (n < 10) return units[n];
+          if (n < 20) return teens[n - 10];
+          if (n < 100) return tens[Math.floor(n / 10)] + " " + convert(n % 10);
+          if (n < 1000)
+            return units[Math.floor(n / 100)] + " Hundred " + convert(n % 100);
+          if (n < 100000)
+            return (
+              convert(Math.floor(n / 1000)) + " Thousand " + convert(n % 1000)
+            );
+          if (n < 10000000)
+            return (
+              convert(Math.floor(n / 100000)) + " Lakh " + convert(n % 100000)
+            );
+          return (
+            convert(Math.floor(n / 10000000)) +
+            " Crore " +
+            convert(n % 10000000)
+          );
+        }
+
+        if (num === 0) return "Zero Rupees Only";
+        const words = convert(num).replace(/\s+/g, " ").trim();
+        return "Rupees " + words + " Only";
       }
 
-      // Toggle component
+      // Helper function to format numbers with commas
+      const formatNumber = (num) =>
+        new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(
+          num
+        );
+
+      // Format salary input
+      function formatSalaryInput(input) {
+        let value = input.value.replace(/,/g, "");
+        if (isNaN(value)) return;
+
+        // Format number with commas
+        input.value = formatNumber(value);
+
+        // Convert to words
+        const numericValue = parseInt(value) || 0;
+        document.getElementById("salary-in-words").textContent =
+          numberToWordsIndian(numericValue);
+
+        // Calculate salary
+        calculateSalary();
+      }
+
+      // Toggle components
       function toggleComponent(key) {
-        enabledComponents[key] = !enabledComponents[key];
+        settings.enabled[key] = !settings.enabled[key];
         renderToggleButtons();
         calculateSalary();
       }
 
-      // Calculate salary
-      function calculateSalary() {
-        const gross = parseFloat(document.getElementById("salary").value) || 0;
-
-        // Calculate components
-        const basic = gross * (percentages.basic / 100);
-        const hra = gross * (percentages.hra / 100);
-        const ta = gross * (percentages.ta / 100);
-        const da = gross * (percentages.da / 100);
-        const otherAllowances = gross * (percentages.otherAllowances / 100);
-
-        // Calculate deductions
-        const epf = basic * (percentages.epf / 100);
-        const esi = gross <= 21000 ? gross * (percentages.esi / 100) : 0;
-        const tds = gross * (percentages.tds / 100);
-        const professionalTax = percentages.professionalTax;
-
-        // Totals
-        const totalAdditions = basic + hra + ta + da + otherAllowances;
-        const totalDeductions = epf + esi + tds + professionalTax;
-        const netSalary = gross - totalDeductions;
-
-        // Update display
-        const salaryBreakdown = document.getElementById("salary-breakdown");
-        salaryBreakdown.innerHTML = `
-        <tr><td class="p-3 font-semibold">Basic Salary</td><td class="p-3">₹${basic.toFixed(
-          2
-        )}</td></tr>
-        <tr><td class="p-3 font-semibold">HRA</td><td class="p-3">₹${hra.toFixed(
-          2
-        )}</td></tr>
-        <tr><td class="p-3 font-semibold">TA</td><td class="p-3">₹${ta.toFixed(
-          2
-        )}</td></tr>
-        <tr><td class="p-3 font-semibold">DA</td><td class="p-3">₹${da.toFixed(
-          2
-        )}</td></tr>
-        <tr><td class="p-3 font-semibold">Other Allowances</td><td class="p-3">₹${otherAllowances.toFixed(
-          2
-        )}</td></tr>
-        <tr class="bg-red-50"><td class="p-3 font-semibold">EPF</td><td class="p-3">- ₹${epf.toFixed(
-          2
-        )}</td></tr>
-        <tr class="bg-red-50"><td class="p-3 font-semibold">ESI</td><td class="p-3">- ₹${esi.toFixed(
-          2
-        )}</td></tr>
-        <tr class="bg-red-50"><td class="p-3 font-semibold">TDS</td><td class="p-3">- ₹${tds.toFixed(
-          2
-        )}</td></tr>
-        <tr class="bg-red-50"><td class="p-3 font-semibold">Professional Tax</td><td class="p-3">- ₹${professionalTax.toFixed(
-          2
-        )}</td></tr>
-      `;
-
-        document.getElementById(
-          "net-salary"
-        ).textContent = `₹${netSalary.toFixed(2)}`;
-        document.getElementById("results").classList.remove("hidden");
+      // Render toggle buttons
+      function renderToggleButtons() {
+        const container = document.getElementById("toggle-container");
+        container.innerHTML = Object.entries(settings.enabled)
+          .map(
+            ([key, enabled]) => `
+                    <button 
+                        onclick="toggleComponent('${key}')"
+                        class="p-3 rounded-lg flex items-center justify-center gap-2 
+                               ${enabled ? "bg-green-500" : "bg-red-500"} 
+                               hover:opacity-90 transition-all text-white"
+                    >
+                        ${key.charAt(0).toUpperCase() + key.slice(1)}
+                        ${enabled ? "✅" : "❌"}
+                    </button>
+                `
+          )
+          .join("");
       }
 
-      // Edit percentages using SweetAlert2
-      document.getElementById("edit-button").addEventListener("click", () => {
-        Swal.fire({
-          title: "Edit Percentages",
-          html: `
-          <input type="number" id="basic" class="swal2-input" placeholder="Basic (%)" value="${percentages.basic}">
-          <input type="number" id="hra" class="swal2-input" placeholder="HRA (%)" value="${percentages.hra}">
-          <input type="number" id="ta" class="swal2-input" placeholder="TA (%)" value="${percentages.ta}">
-          <input type="number" id="da" class="swal2-input" placeholder="DA (%)" value="${percentages.da}">
-          <input type="number" id="otherAllowances" class="swal2-input" placeholder="Other Allowances (%)" value="${percentages.otherAllowances}">
-          <input type="number" id="epf" class="swal2-input" placeholder="EPF (%)" value="${percentages.epf}">
-          <input type="number" id="esi" class="swal2-input" placeholder="ESI (%)" value="${percentages.esi}">
-          <input type="number" id="tds" class="swal2-input" placeholder="TDS (%)" value="${percentages.tds}">
-          <input type="number" id="professionalTax" class="swal2-input" placeholder="Professional Tax (₹)" value="${percentages.professionalTax}">
-        `,
-          focusConfirm: false,
-          preConfirm: () => {
-            percentages.basic =
-              parseFloat(document.getElementById("basic").value) || 0;
-            percentages.hra =
-              parseFloat(document.getElementById("hra").value) || 0;
-            percentages.ta =
-              parseFloat(document.getElementById("ta").value) || 0;
-            percentages.da =
-              parseFloat(document.getElementById("da").value) || 0;
-            percentages.otherAllowances =
-              parseFloat(document.getElementById("otherAllowances").value) || 0;
-            percentages.epf =
-              parseFloat(document.getElementById("epf").value) || 0;
-            percentages.esi =
-              parseFloat(document.getElementById("esi").value) || 0;
-            percentages.tds =
-              parseFloat(document.getElementById("tds").value) || 0;
-            percentages.professionalTax =
-              parseFloat(document.getElementById("professionalTax").value) || 0;
-            calculateSalary();
-          },
-        });
-      });
+      // Calculate salary
+      function calculateSalary() {
+        const gross =
+          parseFloat(
+            document.getElementById("salary").value.replace(/,/g, "")
+          ) || 0;
 
-      // Initialize
+        // Calculations
+        const components = {
+          basic: gross * (settings.percentages.basic / 100),
+          hra: gross * (settings.percentages.hra / 100),
+          ta: gross * (settings.percentages.ta / 100),
+          da: gross * (settings.percentages.da / 100),
+          pf:
+            gross *
+            (settings.percentages.basic / 100) *
+            (settings.percentages.pf / 100),
+          esi: gross <= 21000 ? gross * (settings.percentages.esi / 100) : 0,
+          tds: gross * (settings.percentages.tds / 100),
+          professionalTax: settings.percentages.professionalTax,
+        };
+
+        // Prepare results
+        const [earnings, deductions] = Object.entries(settings.enabled).reduce(
+          ([earn, deduct], [key, enabled]) => {
+            const value = components[key];
+            if (["basic", "hra", "ta", "da"].includes(key) && enabled) {
+              earn.push({
+                name: key.charAt(0).toUpperCase() + key.slice(1) + " Salary",
+                value,
+              });
+            } else if (enabled) {
+              deduct.push({
+                name:
+                  key === "professionalTax"
+                    ? "Professional Tax"
+                    : key.toUpperCase(),
+                value,
+              });
+            }
+            return [earn, deduct];
+          },
+          [[], []]
+        );
+
+        // Update UI
+        const updateDisplay = (elementId, items) => {
+          document.getElementById(elementId).innerHTML = items
+            .map(
+              (item) => `
+                    <div class="flex justify-between">
+                        <span>${item.name}</span>
+                        <span class="font-semibold">₹${formatNumber(
+                          item.value
+                        )}</span>
+                    </div>
+                `
+            )
+            .join("");
+        };
+
+        updateDisplay("earnings", earnings);
+        updateDisplay("deductions", deductions);
+
+        const totalDeductions = deductions.reduce(
+          (sum, { value }) => sum + value,
+          0
+        );
+        document.getElementById("net-salary").textContent = `₹${formatNumber(
+          gross - totalDeductions
+        )}`;
+      }
+
+      // Edit modal
+      function showEditModal() {
+        Swal.fire({
+          title: "Edit Settings",
+          html: `
+                    <div class="text-left space-y-4">
+                        ${Object.entries(settings.percentages)
+                          .map(
+                            ([key, value]) => `
+                            <div>
+                                <label class="block text-sm font-medium mb-1">${
+                                  key.charAt(0).toUpperCase() + key.slice(1)
+                                }</label>
+                                <input 
+                                    type="number" 
+                                    value="${value}"
+                                    class="border rounded p-2 w-full" 
+                                    onchange="updatePercentage('${key}', this.value)"
+                                />
+                            </div>
+                        `
+                          )
+                          .join("")}
+                    </div>
+                `,
+          confirmButtonText: "Save",
+          showCancelButton: true,
+        });
+      }
+
+      function updatePercentage(key, value) {
+        settings.percentages[key] = parseFloat(value);
+        calculateSalary();
+      }
+
+      function resetToDefault() {
+        settings = {
+          percentages: {
+            basic: 40,
+            hra: 20,
+            ta: 10,
+            da: 15,
+            pf: 12,
+            esi: 0.75,
+            tds: 5,
+            professionalTax: 200,
+          },
+          enabled: {
+            basic: true,
+            hra: true,
+            ta: true,
+            da: true,
+            pf: true,
+            esi: true,
+            tds: true,
+            professionalTax: false,
+          },
+        };
+        renderToggleButtons();
+        calculateSalary();
+        Swal.fire("Success!", "Default settings restored", "success");
+      }
+
+      // Initial render
       renderToggleButtons();
-      document
-        .getElementById("salary")
-        .addEventListener("input", calculateSalary);
     </script>
   </body>
 </html>
